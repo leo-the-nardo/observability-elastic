@@ -48,6 +48,17 @@ services:
     networks:
       - observability
 
+  heartbeat:
+    image: docker.elastic.co/beats/heartbeat:8.10.4
+    container_name: heartbeat
+    user: root
+    volumes:
+      - ./beats/heartbeat/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml
+    environment:
+      - setup.kibana.host=kibana:5601
+    networks:
+      - observability
+
 networks:
   observability:
     external: true
