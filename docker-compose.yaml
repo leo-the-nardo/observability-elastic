@@ -3,11 +3,9 @@ version: "3"
 services:
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.4
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.0
     container_name: elasticsearch
     environment:
-      - xpack.security.enabled=false
-      - cluster.routing.allocation.disk.watermark.enable_for_single_data_node=true
       - node.name=elasticsearch
       - cluster.name=es-docker-cluster
       - bootstrap.memory_lock=true
@@ -27,7 +25,7 @@ services:
       - observability
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:8.10.4
+    image: docker.elastic.co/kibana/kibana:7.13.0
     container_name: kibana
     ports:
       - 5601:5601
@@ -38,7 +36,7 @@ services:
       - observability
 
   metricbeat:
-    image: docker.elastic.co/beats/metricbeat:8.10.4
+    image: docker.elastic.co/beats/metricbeat:7.13.0
     container_name: metricbeat
     user: root
     volumes:
@@ -49,13 +47,23 @@ services:
       - observability
 
   heartbeat:
-    image: docker.elastic.co/beats/heartbeat:8.10.4
+    image: docker.elastic.co/beats/heartbeat:7.13.0
     container_name: heartbeat
-    user: root
     volumes:
       - ./beats/heartbeat/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml
     environment:
       - setup.kibana.host=kibana:5601
+    networks:
+      - observability
+
+  apm:
+    image: docker.elastic.co/apm/apm-server-oss:7.13.0
+    container_name: apm
+    volumes:
+      - ./apm/apm-server.yml:/usr/share/apm-server/apm-server.yml
+    ports:
+      - "8200:8200"
+    restart: on-failure
     networks:
       - observability
 
